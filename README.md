@@ -6,8 +6,8 @@ This tool called Cmask (Cirrus cloud mask)  is used for **cirrus cloud detection
 The GIFs below illustrate the comparisons between Cmask and USGS Cirrus QA for all Landsat 8 images (central subset images with 500 pixels X 500 pixels) with disagreement >= 5% from 2013 to 2018. The UPPER LEFT image is a false color composite provided for perspective (SWIR1, NIR, and Red bands). The UPPER RIGHT image is the Cirrus Band TOA reflectance (Unit: X 10000). The LOWER LEFT image is the USGS Cirrus QA flag results (White color). The LOWER RIGHT image is the Cmask results (Variable threshold: Red >= 0.8, Orange >= 0.7, Yellow >= 0.6, Green >= 0.5 (Default)). Considering that any kind of clouds need to be excluded for further applications, the commission error from other non-cirrus clouds located in high altitudes (e.g., top of cumulus cloud) is not particularly harmful.
 <table style="width:100%" border="0">
   <tr>
-    <th><img src="https://github.com/GERSL/Cmask/blob/master/020046_Animation_Cmask_USGSQA.gif"/></th>
-    <th><img src="https://github.com/GERSL/Cmask/blob/master/050017_Animation_Cmask_USGSQA.gif"/></th>
-    <th><img src="https://github.com/GERSL/Cmask/blob/master/215071_Animation_Cmask_USGSQA.gif"/></th>
+    <th><img src="https://github.com/GERSL/Cmask/blob/master/Animation_Cmask_USGSQA_P020R046.gif"/></th>
+    <th><img src="https://github.com/GERSL/Cmask/blob/master/Animation_Cmask_USGSQA_P050R017.gif"/></th>
+    <th><img src="https://github.com/GERSL/Cmask/blob/master/Animation_Cmask_USGSQA_P215R071.gif"/></th>
   </tr>
 </table>
