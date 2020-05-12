@@ -16,4 +16,4 @@ The GIFs below illustrate the comparisons between Cmask and USGS Cirrus QA for a
 </table>
 
 
-Cmask validation data can be found at this Google Drive [https://drive.google.com/open?id=1b-U2bxf3l2b2w3meSFcVwYZJiCt25VeO]
+Cmask validation data can be found at this [Google Drive](https://drive.google.com/open?id=1b-U2bxf3l2b2w3meSFcVwYZJiCt25VeO).
