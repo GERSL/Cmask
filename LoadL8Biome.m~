@@ -1,0 +1,135 @@
+function E(index)
+% %     index=23;
+    % LOADIMAGES Load the data based on L8 Biome folder.
+    [~,fullfile_path_L8Biome, path_row, year_doy]= FindL8BiomeImage(index);
+
+    
+    [fullfile_path_Img_before,fullfile_path_Img, fullfile_path_Img_after]...
+     = FindNearImages(path_row, year_doy);
+     if isempty(fullfile_path_Img)
+         return;
+     end
+     if isempty(fullfile_path_Img_before)&&isempty(fullfile_path_Img_after)
+         return;
+     end
+    % vars
+    %% target image (L8_Biome)
+    target_gridobj = ReadSingleBand(fullfile_path_L8Biome,'LC*B2.tif','isGridObj');
+%     target_gridobj.Z = [];
+    % manual cloud masks (also target image)
+    mmask = ReadSingleBand(fullfile_path_L8Biome,'LC*_mask.tif');
+    
+    %      0	   Fill
+    %     64	   Cloud Shadow
+    %     128	   Clear
+    %     192	   Thin Cloud
+    %     255	   Cloud
+     
+    % observations
+    fmask_target = ReadStackSingleBand(fullfile_path_Img, 'L*Fmask*.tif',target_gridobj);
+    mask = fmask_target<255; %clear fmask_target;
+
+    compDiffs(mask,mmask,target_gridobj,fullfile_path_Img,fullfile_path_Img_before);
+    compDiffs(mask,mmask,target_gridobj,fullfile_path_Img,fullfile_path_Img_after);
+
+%     ShowDensityPlot_DiffCirrusTOA2DiffSR(double(toa_cirrus_diff),double(sr_nir_diff));
+end
+
+function compDiffs(mask,mmask,target_gridobj,fullfile_path_Img,fullfile_path_Img_after)
+    
+    if isempty(fullfile_path_Img_after)
+        return;
+    end
+
+    rec_diffs = struct('ids',[],'toa_cirrus_diff',[],...
+        'sr_aerosol_diff',[],'sr_band1_diff',[],'sr_band2_diff',[],...
+        'sr_band3_diff',[],'sr_band4_diff',[],'sr_band5_diff',[],...
+        'sr_band6_diff',[],'sr_band7_diff',[]);
+    
+    %% previous image
+    % fmask results
+    fmask_before = ReadStackSingleBand(fullfile_path_Img_after, 'L*Fmask*.tif',target_gridobj);
+    % refresh observation extent
+    mask = mask&fmask_before<255;
+    % clear sky pixels
+    clear_before = fmask_before ==0|fmask_before ==1|fmask_before ==3; % 0 is clear land, 1 is clear water, 3 is snow
+    % overlap bewteen the thin clouds and clear surface in the target image
+    % and the clear surface in the this image obtained by Fmask 4.0. 
+    overlap_comped_ids = find ((clear_before&(mmask==192|mmask==128)&mask==1)==1);
+%     overlap_comped_ids = find ((clear_before&(mmask==192)&mask==1)==1);
+    rec_diffs.ids = overlap_comped_ids;
+    
+    
+    %% Diff TOA reflectance of cirrus band (band 9)
+    toa_cirrus_before = ReadStackSingleBand(fullfile_path_Img_after,'L*toa_band9.tif',target_gridobj);
+    toa_cirrus_target = ReadStackSingleBand(fullfile_path_Img,'L*toa_band9.tif',target_gridobj);
+    toa_cirrus_diff = (toa_cirrus_before - toa_cirrus_target);
+    toa_cirrus_diff = toa_cirrus_diff(overlap_comped_ids);
+    rec_diffs.toa_cirrus_diff = toa_cirrus_diff;
+    
+    %% Diff surface reflectances
+    sr_target = ReadStackSingleBand(fullfile_path_Img,'L*sr_aerosol.tif',target_gridobj);
+    sr_before = ReadStackSingleBand(fullfile_path_Img_after,'L*sr_aerosol.tif',target_gridobj);
+    sr_diff = (sr_target-sr_before);
+    sr_diff = sr_diff(overlap_comped_ids);
+    rec_diffs.sr_aerosol_diff = sr_diff;
+    clear sr_diff;
+    
+    sr_target = ReadStackSingleBand(fullfile_path_Img,'L*sr_band1.tif',target_gridobj);
+    sr_before = ReadStackSingleBand(fullfile_path_Img_after,'L*sr_band1.tif',target_gridobj);
+    sr_diff = (sr_target-sr_before);
+    sr_diff = sr_diff(overlap_comped_ids);
+    rec_diffs.sr_band1_diff = sr_diff;
+    clear sr_diff;
+    
+    sr_target = ReadStackSingleBand(fullfile_path_Img,'L*sr_band2.tif',target_gridobj);
+    sr_before = ReadStackSingleBand(fullfile_path_Img_after,'L*sr_band2.tif',target_gridobj);
+    sr_diff = (sr_target-sr_before);
+    sr_diff = sr_diff(overlap_comped_ids);
+    rec_diffs.sr_band2_diff = sr_diff;
+    clear sr_diff;
+    
+    sr_target = ReadStackSingleBand(fullfile_path_Img,'L*sr_band3.tif',target_gridobj);
+    sr_before = ReadStackSingleBand(fullfile_path_Img_after,'L*sr_band3.tif',target_gridobj);
+    sr_diff = (sr_target-sr_before);
+    sr_diff = sr_diff(overlap_comped_ids);
+    rec_diffs.sr_band3_diff = sr_diff;
+    clear sr_diff;
+    
+    sr_target = ReadStackSingleBand(fullfile_path_Img,'L*sr_band4.tif',target_gridobj);
+    sr_before = ReadStackSingleBand(fullfile_path_Img_after,'L*sr_band4.tif',target_gridobj);
+    sr_diff = (sr_target-sr_before);
+    sr_diff = sr_diff(overlap_comped_ids);
+    rec_diffs.sr_band4_diff = sr_diff;
+    clear sr_diff;
+    
+    sr_target = ReadStackSingleBand(fullfile_path_Img,'L*sr_band5.tif',target_gridobj);
+    sr_before = ReadStackSingleBand(fullfile_path_Img_after,'L*sr_band5.tif',target_gridobj);
+    sr_diff = (sr_target-sr_before);
+    sr_diff = sr_diff(overlap_comped_ids);
+    rec_diffs.sr_band5_diff = sr_diff;
+    clear sr_diff;
+    
+    sr_target = ReadStackSingleBand(fullfile_path_Img,'L*sr_band6.tif',target_gridobj);
+    sr_before = ReadStackSingleBand(fullfile_path_Img_after,'L*sr_band6.tif',target_gridobj);
+    sr_diff = (sr_target-sr_before);
+    sr_diff = sr_diff(overlap_comped_ids);
+    rec_diffs.sr_band6_diff = sr_diff;
+    clear sr_diff;
+    
+    sr_target = ReadStackSingleBand(fullfile_path_Img,'L*sr_band7.tif',target_gridobj);
+    sr_before = ReadStackSingleBand(fullfile_path_Img_after,'L*sr_band7.tif',target_gridobj);
+    sr_diff = (sr_target-sr_before);
+    sr_diff = sr_diff(overlap_comped_ids);
+    rec_diffs.sr_band7_diff = sr_diff;
+    clear sr_diff;
+    
+    path_Img_splited = strsplit(fullfile_path_Img,'/');
+    filename_Img = path_Img_splited{end};
+    
+    path_after_Img_splited = strsplit(fullfile_path_Img_after,'/');
+    filename_after_Img = path_after_Img_splited{end};
+    % save the accs in the matlab outputs folder.
+    save([pwd,'/Outputs/rtewsca_',filename_Img,'_',filename_after_Img],'rec_diffs');
+end
+
