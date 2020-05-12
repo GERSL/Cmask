@@ -16,8 +16,13 @@ The GIFs below illustrate the comparisons between Cmask and USGS Cirrus QA for a
 </table>
 
 **Data**
-Training data will be updated soon.
+
+Example data will come soon.
+
+Training data will come soon.
+
 Validation data are available at this [Google Drive](https://drive.google.com/open?id=1b-U2bxf3l2b2w3meSFcVwYZJiCt25VeO).
+
 Gobal mask for places where water vapor regressor should be included in Cmask is available at this [Google Drive](https://drive.google.com/open?id=13ucOF5kKfrAxXNEVMPh4nJea3UGXiiGR)
 
 
