@@ -14,3 +14,6 @@ The GIFs below illustrate the comparisons between Cmask and USGS Cirrus QA for a
     <th><img src="https://github.com/GERSL/Cmask/blob/master/Animation_Cmask_USGSQA_P215R071.gif"/></th>
   </tr>
 </table>
+
+
+Cmask validation data can be found at this Google Drive [https://drive.google.com/open?id=1b-U2bxf3l2b2w3meSFcVwYZJiCt25VeO]
