@@ -27,4 +27,4 @@ Gobal mask for places where water vapor regressor should be included in Cmask is
 
 **Please cite the following paper:**
 
-Qiu, Shi, Zhe Zhu, and Curtis E. Woodcock. "Cirrus clouds that adversely affect Landsat 8 images: What are they and how to detect them?." Remote Sensing of Environment 246 (2020): 111884.[https://doi.org/10.1016/j.rse.2020.111884](https://doi.org/10.1016/j.rse.2020.111884)
+Qiu, Shi, Zhe Zhu, and Curtis E. Woodcock. "Cirrus clouds that adversely affect Landsat 8 images: What are they and how to detect them?." Remote Sensing of Environment 246 (2020): 111884. [https://doi.org/10.1016/j.rse.2020.111884](https://doi.org/10.1016/j.rse.2020.111884)
