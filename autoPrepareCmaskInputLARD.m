@@ -1,8 +1,5 @@
-function autoPrepareCmaskInputESPA(varargin)
-%autoPrepareCmaskInputESPA Prepare Landsat Band 9 into Cmask input format, 
-% which are downloaded from USGS Earth Resources Observation and Science
-% (EROS) Center Science Processing Architecture (ESPA)
-% (https://espa.cr.usgs.gov/)
+function autoPrepareCmaskInputLARD(varargin)
+%autoPrepareCmaskInputLARD Prepare Landsat ARD Band 9 into Cmask input format, 
 %
 %   same extent using nearest method based on the Topotoolbox 
 %   https://topotoolbox.wordpress.com/topotoolbox/).
@@ -20,18 +17,16 @@ function autoPrepareCmaskInputESPA(varargin)
 %                        the current folder.
 %   'DirOut'    Directory of output data.  Default is the path to
 %                        the current folder.
-%   'ExtentSample'       An example geotiff file, of which extent will be 
-%                        used as basic reference. All images will be 
-%                        resampled to this same extent.  Default is not to
-%                        do this process if no input for this.
 %
-
+% Example:
+% autoPrepareCmaskInputESPA('DirL', 'C:\Users\xxx\Desktop\Example_Data_Cmask\espa-qsly09@hotmail.com-08212018-150747-713',
+% 'DirWV','C:\Users\xxx\Desktop\Example_Data_Cmask\MERRA2_HourlyWaterVapor',
+% 'DirOut', 'C:\Users\xxx\Desktop\Example_Data_Cmask\CmaskInput' )
+%
 %   Author:  Shi Qiu (shi.qiu#uconn.edu)
 %            Zhe Zhu (zhe.zhu#uconn.edu)
 %            
 %   Date: 8. Aug, 2020
-% Example:
-% autoPrepareCmaskInputESPA('DirL', 'C:\Users\qsly0\Desktop\Example_Data_Cmask\espa-xxx-08212018-150747-713', 'DirWV','C:\Users\qsly0\Desktop\Example_Data_Cmask\MERRA2_HourlyWaterVapor', 'DirOut', 'C:\Users\qsly0\Desktop\Example_Data_Cmask\CmaskInput' )
 
     %% get parameters from inputs
     % where all the  Landsat zipped files are
@@ -50,17 +45,20 @@ function autoPrepareCmaskInputESPA(varargin)
     addParameter(p,'DirL',dir_landsat);
     addParameter(p,'DirWV',dir_wv);
     addParameter(p,'DirOut',dir_out);
-    addParameter(p,'ExtentSample','');
     
     % request user's input
     parse(p,varargin{:});
     dir_landsat = p.Results.DirL;
     dir_wv = p.Results.DirWV;
     dir_out = p.Results.DirOut;
+    
+    
+%     dir_landsat = 'C:\Users\qsly0\Desktop\Example_Cmask_ARD';
+%     dir_wv = 'C:\Users\qsly0\Desktop\Example_Cmask_ARD\WaterVapor';
+    
     if isempty(dir_out)
         dir_out = dir_landsat;
     end
-    trgt_file = p.Results.ExtentSample;
     
     warning('off','all');
     
@@ -79,10 +77,10 @@ function autoPrepareCmaskInputESPA(varargin)
     
     %% Filter for Landsat folders
     % get num of total folders start with "L"
-    imfs = dir(fullfile(dir_landsat,'L*.tar.gz'));
+    imfs = dir(fullfile(dir_landsat,'L*_TA.tar'));
     % filter for Landsat folders
     % espa data
-    imfs = regexpi({imfs.name}, 'L(T05|T04|E07|C08)(\w*)\-(\w*).tar.gz', 'match'); 
+    imfs = regexpi({imfs.name}, 'L(T05|T04|E07|C08)(\w*)', 'match'); % no expand name
     imfs = [imfs{:}];
     if isempty(imfs)
         warning('No images here!');
@@ -90,7 +88,7 @@ function autoPrepareCmaskInputESPA(varargin)
     end
     imfs = vertcat(imfs{:});
     % sort according to yeardoy
-    yyyymmdd = str2num(imfs(:, 11:18)); % should change for different sets
+    yyyymmdd = str2num(imfs(:, 16:23)); % should change for different sets
     [~, sort_order] = sort(yyyymmdd);
     imfs = imfs(sort_order, :);
     % number of folders start with "L"
@@ -100,19 +98,17 @@ function autoPrepareCmaskInputESPA(varargin)
         % name of the temporary folder for extracting zip files
         n_tmp = [name_tmp,num2str(i)];
         imf = imfs(i,:);
-        % new filename in format of LXSPPPRRRYYYYDOYLLLTT   
-        yr = (imf(11:14));
+        % new filename in format of LXSPPPRRRYYYYDOYLLLTT
+        yr = str2num(imf(16:19));
         % converst mmdd to doy
-        mm = (imf(15:16));
-        dd = (imf(17:18));
-        yyyymmdd_str = [yr,mm,dd];
-        yr = str2num(yr);
-        mm = str2num(mm);
-        dd = str2num(dd);
-        
+        mm = str2num(imf(20:21));
+        dd = str2num(imf(22:23));
         doy = datenummx(yr,mm,dd)-datenummx(yr,1,0);
+        
+        yyyymmdd_str = imf(16:23);
+        
         % set folder and image name
-        n_mtl = [imf([1,2,4:14]),num2str(doy,'%03d'),'0',imf(19:22)];
+        n_mtl = [imf([1,2,4,9:14,16:19]),num2str(doy,'%03d'),imf([34,16,38:40])];
         % check if folder exsit or not
         n_stack = [char(n_mtl),'_MTLstack'];
         % add directory
@@ -131,8 +127,7 @@ function autoPrepareCmaskInputESPA(varargin)
         
         % names of image folder that are processed
         try
-            n_gun = gunzip(fullfile(dir_landsat,imf),fullfile(dir_out,n_tmp));
-            n_tar = untar(fullfile(dir_out,n_tmp,imf(1:end-3)),fullfile(dir_out,n_tmp));
+            ta_tar = untar(fullfile(dir_landsat,imf),fullfile(dir_out,n_tmp));
         catch me
             if isfolder(fullfile(dir_out,n_tmp))
                 rmdir(fullfile(dir_out,n_tmp),'s');
@@ -142,26 +137,26 @@ function autoPrepareCmaskInputESPA(varargin)
         end
         
         % meta data to obtain acqurision time
-        mtl_txt = dir(fullfile(dir_out,n_tmp,'L*MTL.txt'));
-        if ~isempty(mtl_txt) % envi format
-            mtl_txt = fullfile(dir_out,n_tmp,mtl_txt.name);
+        mtl_xml= dir(fullfile(dir_out,n_tmp,'L*.xml'));
+        if ~isempty(mtl_xml) % envi format
+            mtl_xml = fullfile(dir_out,n_tmp,mtl_xml.name);
         else
-            mtl_txt = '';
+            mtl_xml = '';
         end
         
         % when no meta data, give the water vapor at 12:00 UTC
-        if isempty(mtl_txt)
+        if isempty(mtl_xml)
             data_time = 12;
         else
-            data_time = ReadMetaData(mtl_txt);
+            data_time = ReadMetaDataARD(mtl_xml);
         end
         
-        tif_b9 = dir(fullfile(dir_out,n_tmp,'L*toa_band9.tif'));
+        tif_b9 = dir(fullfile(dir_out,n_tmp,'L*TAB9.tif'));
 
         tif_b9 = fullfile(dir_out,n_tmp,tif_b9.name);
         trg_girdobj = GRIDobj(tif_b9);
         b9 = trg_girdobj.Z;
-
+        
         if ~isempty(tif_b9) % tif format(tif_cfmask);
             % get projection information from geotiffinfo
             info = geotiffinfo(tif_b9);

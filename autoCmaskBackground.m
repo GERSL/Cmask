@@ -1,13 +1,36 @@
-% Predict the entire image's cirrus TOA reflectence
-% Step 1. coefficinces save local
-% Step 2. 
-function autoCmaskBackground()
+function autoCmaskBackground(varargin)
+% create background layer containing all coeffs of the Cmask time seires
+% model.
+% Processing 113 images with 501 pixels by 501 pixels will consume
+% ~ 9 mins on the computer with Intel i7-8665U CPU @ 1.90GHz and 16GB RAM
+% This means 5000 pixles by 5000 pixels, such as Landsat ARD, 1.5 hours.
+%
+% Specific parameters
+% ------------------------
+%   'DirIn'     Directory of input stacked data.  Default is the path to
+%                        the current folder.
+%   'DirOut'    Directory of output data.  Default is the path to
+%                        the current folder.
+%
+% autoCmaskBackground('DirIn', 'C:\Users\qsly0\Desktop\Example_Data_Cmask\CmaskInput', 'DirOut', 'C:\Users\qsly0\Desktop\Example_Data_Cmask\CmaskOutput\Background')
     dir_work = pwd;
     ds=DefaultSetting();
     dir_cmask_input = fullfile(dir_work,ds.foldername_input);
     dir_cmask_output = fullfile(dir_work, ...
         ds.foldername_output, ds.foldername_bg);
-
+        
+    p = inputParser;
+    p.FunctionName = 'bgParas';
+    % optional
+    % default values.
+    addParameter(p,'DirIn',dir_cmask_input);
+    addParameter(p,'DirOut',dir_cmask_output);
+    % request user's input
+    parse(p, varargin{:});
+    dir_cmask_input = p.Results.DirIn;
+    dir_cmask_output = p.Results.DirOut;
+    
+    tic
     warning('off','all');
     
     num_coefs = 4;
@@ -27,17 +50,13 @@ function autoCmaskBackground()
     img_coefs = zeros(nrows,ncols,num_coefs+1,'single')-9999; % +1 RMSE -9999 is non-value here.
     
     for row = 1: nrows
-        
         % read cirrus time series
         [Xs, Ys] = InitialTimeSeriesData(dir_cmask_input, satellite, nbands, row,ncols);
-
         % each pixel in a row
 %         for i_ids = 1:min(ncols,lim_pixels) % only to 500 pixels
         for i_ids = 1:ncols % only to 500 pixels
-
             col=i_ids;
-            
-            cirrus_toa_obs = Ys(:,(nbands*(i_ids-1)+1):(nbands*(i_ids-1)+nbands-1));
+            cirrus_toa_obs = Ys(:,(nbands*(i_ids-1)+1):(nbands*(i_ids-1)+nbands));
             wvs = cirrus_toa_obs(:,2)./100;% back to 100
             cirrus_toa_obs = cirrus_toa_obs(:,1);
 
@@ -65,6 +84,10 @@ function autoCmaskBackground()
         mkdir(output_folder);
     end
     enviwrite(fullfile(dir_cmask_output,[name_tcmask_bgd,'_BG']),img_coefs,'single',resolu,jiUL,'bsq',zc);
+    
+    timeused = toc/60; % mins 
+    fprintf('%0.2f minutes used\n',timeused);
+    
 end
 
 
@@ -112,8 +135,8 @@ function [Xs, Ys] = InitialTimeSeriesData(dir_cur, satellite, nbands, row, ncols
         Ys(i,:) = fread(fid_t,nbands*ncols,'int16','ieee-le'); % get Ys
         fclose('all'); % close all files
         
-        fprintf('Processed %dth line\n',row);
     end
+    fprintf('Processed %dth line\n',row);
 %     WVs = WVs./100;
 %     WVs = 1./exp(WVs); % opposite to reflectence
 end

@@ -36,11 +36,21 @@ indx_lines = strmatch('lines',geo_str)+2;
 indx_bands = strmatch('bands',geo_str)+2;
 indx_datatype = strmatch('data',geo_str)+3;
 indx_interleave = strmatch('interleave',geo_str)+2;
-indx_xUL = strmatch('map',geo_str)+6;
-indx_yUL = strmatch('map',geo_str)+7;
-indx_xreso = strmatch('map',geo_str)+8;
-indx_yreso = strmatch('map',geo_str)+9;
-indx_zc = strmatch('map',geo_str)+10;
+
+% if the data is in Albers COnical Equal Area projectin such as Landsat ARD
+if ~isempty(strmatch('Albers',geo_str))&&~isempty(strmatch('Conical',geo_str))&&~isempty(strmatch('Equal',geo_str))
+    indx_xUL = strmatch('map',geo_str)+9;
+    indx_yUL = strmatch('map',geo_str)+10;
+    indx_xreso = strmatch('map',geo_str)+11;
+    indx_yreso = strmatch('map',geo_str)+12;
+    indx_zc = 0;
+else
+    indx_xUL = strmatch('map',geo_str)+6;
+    indx_yUL = strmatch('map',geo_str)+7;
+    indx_xreso = strmatch('map',geo_str)+8;
+    indx_yreso = strmatch('map',geo_str)+9;
+    indx_zc = strmatch('map',geo_str)+10;
+end
 
 % read input image hdr
 cols = str2double(geo_str(indx_samples));
@@ -54,7 +64,11 @@ jiUL(1)=str2double(geo_str(indx_xUL));
 jiUL(2)=str2double(geo_str(indx_yUL)); 
 resolu(1)=str2double(geo_str(indx_xreso)); 
 resolu(2)=str2double(geo_str(indx_yreso)); 
-ZC=str2double(geo_str(indx_zc)); 
+if indx_zc ==0
+    ZC= [];
+else
+    ZC=str2double(geo_str(indx_zc)); 
+end
 
 if datatype == 1
     in_type = 'uint8';
