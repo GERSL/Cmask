@@ -31,9 +31,6 @@ function [fit_cft, rmse]= CmaskModelFit(x,y,wv,wvn)
     % fit coefs
     fit_cft = zeros(3+addwv,1);
 
-    % global lamda_lasso
-
-    %% LASSO Fit
     % build X
     X = zeros(n,4 + addwv-2);
     
