@@ -15,7 +15,7 @@ The GIFs below illustrate the comparisons between Cmask and USGS Cirrus QA for a
 
 **Data**
 
-Example data will come soon.
+Example data are available at this [Google Drive](https://drive.google.com/drive/folders/1LTPuRc4-qVOHSfGguD6g4wBeJ30oPqXv?usp=sharing.).
 
 Training data will come soon.
 
