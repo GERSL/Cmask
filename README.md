@@ -23,7 +23,7 @@ Validation data are available at this [Google Drive](https://drive.google.com/op
 
 Gobal mask for places where water vapor regressor should be included in Cmask is available at this [Google Drive](https://drive.google.com/open?id=13ucOF5kKfrAxXNEVMPh4nJea3UGXiiGR)
 
-
+**See the Word named 'How to use Cmask.docx' for the tutorial (within the code package)!**
 
 **Please cite the following paper:**
 
