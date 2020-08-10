@@ -3,7 +3,7 @@ This tool called Cmask (Cirrus cloud mask)  is used for **cirrus cloud detection
 
 **Note:** We recommend combining Cmask and another cloud detection algorithm (e.g., [Fmask](https://github.com/GERSL/Fmask)) to detect all kinds of clouds in Landsat Time Series (LTS) since Cmask is designed for detecting cirrus clouds solely (It cannot detect non-cirrus clouds). 
 
-**See the Word named 'How to use Cmask.docx' for the tutorial (within the code package)!**
+**See the document named 'How to use Cmask.docx' for the tutorial (within the code package)!**
 
 **Data**
 
