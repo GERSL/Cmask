@@ -5,7 +5,7 @@ This tool called Cmask (Cirrus cloud mask)  is used for **cirrus cloud detection
 
 **See the document named 'How to use Cmask.docx' for the tutorial (within the code package)!**
 
-**Data**
+**Data:**
 
 Example data are available at this [Google Drive](https://drive.google.com/drive/folders/1LTPuRc4-qVOHSfGguD6g4wBeJ30oPqXv?usp=sharing.).
 
