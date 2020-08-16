@@ -12,6 +12,9 @@ function autoCmaskBackground(varargin)
 %   'DirOut'    Directory of output data.  Default is the path to
 %                        the current folder.
 %
+% History:
+% 1. if observations < 6, skip to fit model. 16 Aug., 2020  Shi
+%
 % autoCmaskBackground('DirIn', 'C:\Users\qsly0\Desktop\Example_Data_Cmask\CmaskInput', 'DirOut', 'C:\Users\qsly0\Desktop\Example_Data_Cmask\CmaskOutput\Background')
     dir_work = pwd;
     ds=DefaultSetting();
@@ -65,9 +68,11 @@ function autoCmaskBackground(varargin)
            Ys_tmp = cirrus_toa_obs(:,1);
            
            % all pixels but remove the unnormal data start ...
-           dr_ids = 0<Ys_tmp&Ys_tmp<10000&...
-               wvs>0; % only the values between 0 and 10000 and at the same time the vw is available
-           
+           dr_ids =find(0<Ys_tmp&Ys_tmp<10000&...
+               wvs>0); % only the values between 0 and 10000 and at the same time the vw is available
+           if length(dr_ids) < 6
+                continue;
+           end
            [fit_cft_cirrus_tmp, rmse_cirrus] = CmaskModelFit(Xs_tmp(dr_ids),Ys_tmp(dr_ids),wvs(dr_ids));
   
            fit_cft_cirrus = fit_cft_cirrus_tmp;
