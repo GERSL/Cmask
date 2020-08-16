@@ -9,6 +9,9 @@ function autoCmaskDetectCirrus(varargin)
 %   'ThrdNormCirrus'    Default value: 0.5. Usually this can be adjusted to decrease commisison or omission errors.
 %   'ThrdMinCirrus'    Default value: 31. See Qiu et al., RSE, 2020.
 
+% History:
+% 1. add new labels for no enough observations for building time series
+% modle (254) and filled pixel for individual image (255). 16 Aug., 2020  Shi
 
 % autoCmaskDetectCirrus('DirIn', 'C:\Users\qsly0\Desktop\Example_Data_Cmask\CmaskInput','DirBackground', 'C:\Users\qsly0\Desktop\Example_Data_Cmask\CmaskOutput\Background', 'DirOut', 'C:\Users\qsly0\Desktop\Example_Data_Cmask\CmaskOutput\CirrusMask')
 
@@ -80,8 +83,11 @@ function autoCmaskDetectCirrus(varargin)
 
          delta_obserd_pred = img_obserd - img_pred;
         
-        mask_cirrus = delta_obserd_pred > thrd_mincir & delta_obserd_pred./img_obserd>thrd_normdiff;
+        mask_cirrus = delta_obserd_pred > thrd_mincir & delta_obserd_pred./img_obserd>thrd_normdiff; % cirrus: 1
+        
         clear delta_obserd_pred 
+        mask_cirrus( im_bgd(:,:,end)==-9999) = 254; % 254: lack of enough obervations for building Cmask time series model, 
+        mask_cirrus(img_obserd==0)=255; % filled: 255
         mask_cirrus = uint8(mask_cirrus);
         
         output_folder = fullfile(dir_cmask_cirrus_mask,name_cmask_img);
