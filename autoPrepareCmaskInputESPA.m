@@ -30,8 +30,15 @@ function autoPrepareCmaskInputESPA(varargin)
 %            Zhe Zhu (zhe.zhu#uconn.edu)
 %            
 %   Date: 8. Aug, 2020
+% 
+% History:
+% 1. add a variable 'ExtentSample' to define a extent geotiff, which will be used to clip all images into a same extent and a same spatial resolution. 16 Aug., 2020  Shi
+%
 % Example:
-% autoPrepareCmaskInputESPA('DirL', 'C:\Users\qsly0\Desktop\Example_Data_Cmask\espa-xxx-08212018-150747-713', 'DirWV','C:\Users\qsly0\Desktop\Example_Data_Cmask\MERRA2_HourlyWaterVapor', 'DirOut', 'C:\Users\qsly0\Desktop\Example_Data_Cmask\CmaskInput' )
+% To prepare data without extent file:
+% autoPrepareCmaskInputESPA('DirL', 'C:\Users\qsly0\Desktop\Example_Data_Cmask\espa-xxx-08212018-150747-713', 'DirWV','C:\Users\qsly0\Desktop\Example_Data_Cmask\MERRA2_HourlyWaterVapor', 'DirOut', 'C:\Users\qsly0\Desktop\Example_Data_Cmask\CmaskInput')
+% To prepare data with extent file:
+% autoPrepareCmaskInputESPA('DirL', 'C:\Users\qsly0\Desktop\Example_Data_Cmask\espa-xxx-08212018-150747-713', 'DirWV','C:\Users\qsly0\Desktop\Example_Data_Cmask\MERRA2_HourlyWaterVapor', 'DirOut', 'C:\Users\qsly0\Desktop\Example_Data_Cmask\CmaskInput', 'ExtentSample', 'C:\Users\qsly0\Desktop\Example_Data_Cmask\LC080200462013061101T1-SC20180821151847.tar\LC080200462013061101T1-SC20180821151847/LC08_L1TP_020046_20130611_20170504_01_T1_bt_band10.tif' )
 
     %% get parameters from inputs
     % where all the  Landsat zipped files are
@@ -158,11 +165,26 @@ function autoPrepareCmaskInputESPA(varargin)
         
         tif_b9 = dir(fullfile(dir_out,n_tmp,'L*toa_band9.tif'));
 
-        tif_b9 = fullfile(dir_out,n_tmp,tif_b9.name);
-        trg_girdobj = GRIDobj(tif_b9);
-        b9 = trg_girdobj.Z;
-
         if ~isempty(tif_b9) % tif format(tif_cfmask);
+            % read Band 9
+            tif_b9 = fullfile(dir_out,n_tmp,tif_b9.name);
+            trg_girdobj = GRIDobj(tif_b9);
+            % resample Band 9 into the file named by 'ExtentSample'
+            if ~isempty(trgt_file)
+                % have targt file
+                try
+                    trgt_obj_extent = GRIDobj(trgt_file);
+                    trgt_obj_extent.Z = zeros(trgt_obj_extent.size);% empty memory initially masked as 0
+                    % same extent and resolution
+                    trg_girdobj = resample(trg_girdobj, trgt_obj_extent, 'nearest', true, 'fillval', 0);
+                    clear trgt_obj_extent;
+                catch
+                    fprintf('Sample file can not be support for resampling to same extent. Only geotiff is workable.\n');
+                    return;
+                end
+            end
+            b9 = trg_girdobj.Z;
+            
             % get projection information from geotiffinfo
             info = geotiffinfo(tif_b9);
             jidim = [info.SpatialRef.RasterSize(2),info.SpatialRef.RasterSize(1)];
@@ -208,6 +230,10 @@ function autoPrepareCmaskInputESPA(varargin)
 
         % remove the tmp folder
         rmdir(fullfile(dir_out,n_tmp),'s');
-        fprintf('Successfully processed %s\r',n_mtl);
+        if ~isempty(trgt_file)
+            fprintf('Successfully processed %s with being clipped\r',n_mtl);
+        else
+            fprintf('Successfully processed %s\r',n_mtl);
+        end
     end
 end
