@@ -186,7 +186,11 @@ function autoPrepareCmaskInputESPA(varargin)
             b9 = trg_girdobj.Z;
             
             % get projection information from geotiffinfo
-            info = geotiffinfo(tif_b9);
+            if ~isempty(trgt_file)
+                info = geotiffinfo(trgt_file);
+            else
+                info = geotiffinfo(tif_b9);
+            end
             jidim = [info.SpatialRef.RasterSize(2),info.SpatialRef.RasterSize(1)];
             jiul = [info.SpatialRef.XLimWorld(1),info.SpatialRef.YLimWorld(2)];
             resolu = [info.PixelScale(1),info.PixelScale(2)];
